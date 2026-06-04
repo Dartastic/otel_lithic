@@ -2,7 +2,6 @@
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
 import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
-import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_lithic_suppression.dart';
 
@@ -54,57 +53,72 @@ Future<T> tracedLithic<T>({
   final t = tracer ?? OTel.tracerProvider().getTracer('otel_lithic');
   final span = t.startSpan('lithic $operation', kind: SpanKind.client);
   try {
-    span.setStringAttribute('rpc.system', 'lithic');
+    span.addAttributes(
+        OTel.attributes([OTel.attributeString('rpc.system', 'lithic')]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.account != null) {
-        span.setStringAttribute('lithic.account', res.account!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('lithic.account', res.account!)]));
       }
       if (res.cardToken != null) {
-        span.setStringAttribute('lithic.card.token', res.cardToken!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('lithic.card.token', res.cardToken!)]));
       }
       if (res.cardType != null) {
-        span.setStringAttribute('lithic.card.type', res.cardType!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('lithic.card.type', res.cardType!)]));
       }
       if (res.cardState != null) {
-        span.setStringAttribute('lithic.card.state', res.cardState!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('lithic.card.state', res.cardState!)]));
       }
       if (res.transactionToken != null) {
-        span.setStringAttribute(
-          'lithic.transaction.token',
-          res.transactionToken!,
-        );
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+            'lithic.transaction.token',
+            res.transactionToken!,
+          )
+        ]));
       }
       if (res.amount != null) {
-        span.setDoubleAttribute('lithic.amount', res.amount!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeDouble('lithic.amount', res.amount!)]));
       }
       if (res.currency != null) {
-        span.setStringAttribute('lithic.currency', res.currency!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('lithic.currency', res.currency!)]));
       }
       if (res.merchantCategory != null) {
-        span.setStringAttribute(
-          'lithic.merchant.category',
-          res.merchantCategory!,
-        );
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+            'lithic.merchant.category',
+            res.merchantCategory!,
+          )
+        ]));
       }
       if (res.result != null) {
-        span.setStringAttribute('lithic.result', res.result!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('lithic.result', res.result!)]));
       }
       if (res.statusCode != null) {
-        span.setIntAttribute('http.response.status_code', res.statusCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
       }
       if (res.errorCode != null) {
-        span.setStringAttribute('lithic.error.code', res.errorCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('lithic.error.code', res.errorCode!)]));
       }
-      final fail =
-          res.errorCode != null ||
+      final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400);
       if (fail) {
-        span.setStringAttribute(
-          ErrorResource.errorType.key,
-          res.errorCode ?? 'lithic.error',
-        );
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+            ErrorResource.errorType.key,
+            res.errorCode ?? 'lithic.error',
+          )
+        ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
     }
